@@ -9,14 +9,22 @@
 
     <ItemGroup>
       <PackageReference Include="Google.Apis.Gmail.v1" Version="1.57.0.2650" />
+      <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
       <PackageReference Include="ReactiveMarbles.ObservableEvents.SourceGenerator" Version="1.1.4">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="ReactiveUI" Version="18.3.1" />
       <PackageReference Include="ReactiveUI.Fody" Version="18.3.1" />
+      <PackageReference Include="RepoDb.SQLite.System" Version="1.0.1" />
       <PackageReference Include="System.Reactive" Version="5.0.0" />
       <PackageReference Include="Terminal.Gui" Version="1.7.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="db">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

@@ -1,10 +1,7 @@
-﻿
-
-
-
-using System.Reactive.Concurrency;
+﻿using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Text;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Gmail.v1;
 using Google.Apis.Services;
@@ -21,13 +18,12 @@ class Program
 {
     public static void Main(string[] args)
     {
-        Application.Init ();
+        Application.Init();
         RxApp.MainThreadScheduler = TerminalScheduler.Default;
         RxApp.TaskpoolScheduler = TaskPoolScheduler.Default;
-        Application.Run (new MainView(new MainViewModel()));
+        Application.Run(new MainView(new MainViewModel()));
     }
 }
-
 
 class MainViewModel : ReactiveObject
 {
@@ -35,50 +31,24 @@ class MainViewModel : ReactiveObject
 
     public MainViewModel()
     {
-        string credPath = "token.json";
-        var credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-            new ClientSecrets()
-            {
-                ClientId = "1054055296797-649vhgjueq528r64fh4b9nhvsscst1ks.apps.googleusercontent.com",
-                ClientSecret = "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"
-            },
-            new[] { GmailService.Scope.GmailReadonly },
-            "user",
-            CancellationToken.None,
-            new FileDataStore(credPath, true)).Result;
-        Console.WriteLine("Credential file saved to: " + credPath);
+        var emailService = new EmailService(new BankMessageStore());
+        var msgs = emailService.GetHtmlBankMessages().Result;
+        // var doc = new HtmlAgilityPack.HtmlDocument();
+        // doc.LoadHtml();
 
-    // Create Gmail API service.
-    var service = new GmailService(new BaseClientService.Initializer
-    {
-        HttpClientInitializer = credential,
-        ApplicationName = "CIAO APP NAME"
-    });
-
-    // Define parameters of request.
-    UsersResource.LabelsResource.ListRequest request = service.Users.Labels.List("me");
-
-    var listRequest = service.Users.Messages.List("me");
-    listRequest.Q = "from:webank@webank.it subject:autorizzato pagamento";
-    var listMessagesResponse = listRequest.Execute();
-
-    var messages = listMessagesResponse.Messages.Select(msg => service.Users.Messages.Get("me", msg.Id).ExecuteAsync());
-    var result = Task.WhenAll(messages).Result;
-    var raws = result.Select(r => r.Raw);
-    // List labels. 
-    IList<Google.Apis.Gmail.v1.Data.Label> labels = request.Execute().Labels;
-    
-}
-
+        // List labels. 
+        // IList<Google.Apis.Gmail.v1.Data.Label> labels = request.Execute().Labels;
+    }
 }
 
 class MainView : Window, IViewFor<MainViewModel>
 {
-    readonly CompositeDisposable _disposable = new ();
+    readonly CompositeDisposable _disposable = new();
+
     object? IViewFor.ViewModel
     {
         get => ViewModel;
-        set => ViewModel = (MainViewModel) value!;
+        set => ViewModel = (MainViewModel)value!;
     }
 
     public MainViewModel? ViewModel { get; set; }
@@ -92,7 +62,8 @@ class MainView : Window, IViewFor<MainViewModel>
 
     private TextField _someText(View previous)
     {
-        var someText = new TextField (ViewModel.SomeText) {
+        var someText = new TextField(ViewModel.SomeText)
+        {
             X = Pos.Left(previous),
             Y = Pos.Top(previous) + 1,
             Width = 40
@@ -103,12 +74,12 @@ class MainView : Window, IViewFor<MainViewModel>
             .BindTo(someText, field => field.Text)
             .DisposeWith(_disposable);
         someText
-            .Events ()
+            .Events()
             .TextChanged
-            .Select (old => someText.Text)
-            .DistinctUntilChanged ()
-            .BindTo (ViewModel, x => x.SomeText)
-            .DisposeWith (_disposable);
+            .Select(old => someText.Text)
+            .DistinctUntilChanged()
+            .BindTo(ViewModel, x => x.SomeText)
+            .DisposeWith(_disposable);
         Add(someText);
         return someText;
     }
