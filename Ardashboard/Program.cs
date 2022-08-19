@@ -2,6 +2,8 @@
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
+using Ardashboard.EmailService;
+using Ardashboard.Stores;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Gmail.v1;
 using Google.Apis.Services;
@@ -31,7 +33,7 @@ class MainViewModel : ReactiveObject
 
     public MainViewModel()
     {
-        var emailService = new EmailService(new BankMessageStore());
+        var emailService = new EmailService.EmailService(new BankMessageStore());
         var msgs = emailService.GetHtmlBankMessages().Result;
         // var doc = new HtmlAgilityPack.HtmlDocument();
         // doc.LoadHtml();

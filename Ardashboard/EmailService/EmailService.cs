@@ -1,19 +1,20 @@
 ﻿using System.Data.SQLite;
 using System.Text;
+using Ardashboard.Stores;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Gmail.v1;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using RepoDb;
 
-namespace Ardashboard;
+namespace Ardashboard.EmailService;
 
-public class EmailService
+public class EmailService : IEmailService
 {
-    private readonly IBankMessagesStore _bankMessagesStore;
+    private readonly IBankMessageStore _bankMessagesStore;
     private readonly GmailService _gmailService;
 
-    public EmailService(IBankMessagesStore bankMessagesStore)
+    public EmailService(IBankMessageStore bankMessagesStore)
     {
         _bankMessagesStore = bankMessagesStore;
         var credPath = "token.json";
@@ -36,7 +37,7 @@ public class EmailService
         });
     }
 
-    public async Task<IEnumerable<string>> GetHtmlBankMessages(CancellationToken cancellationToken = new())
+    public async Task<IEnumerable<HtmlBankMessage>> GetHtmlBankMessages(CancellationToken cancellationToken = new())
     {
         var messageIds = await _getBankMessageIds(cancellationToken);
         var storedIds = _bankMessagesStore.GetMessageIds();
@@ -44,7 +45,7 @@ public class EmailService
         var htmlBankMessagesFromApi = await _getHtmlBankMessagesFromApi(notCachedMessageIds);
         htmlBankMessagesFromApi.ToList().ForEach(_bankMessagesStore.Save);
         var storedHtmlMessages = storedIds.Select(_bankMessagesStore.GetHtmlBankMessage);
-        return htmlBankMessagesFromApi.Concat(storedHtmlMessages).Select(message => message.HtmlBody);
+        return htmlBankMessagesFromApi.Concat(storedHtmlMessages);//.Select(message => message.HtmlBody);
     }
 
     private async Task<IEnumerable<string>> _getBankMessageIds(CancellationToken cancellationToken = new())
@@ -84,45 +85,4 @@ public class EmailService
             ;
         return ids.Zip(bankHtmlMessages, (id, msg) => new HtmlBankMessage() { HtmlBody = msg, Id = id });
     }
-}
-
-public interface IBankMessagesStore
-{
-    IEnumerable<string> GetMessageIds();
-    HtmlBankMessage GetHtmlBankMessage(string id);
-    void Save(HtmlBankMessage message);
-}
-
-public class BankMessageStore : IBankMessagesStore
-{
-    public BankMessageStore()
-    {
-        RepoDb.SQLiteBootstrap.Initialize();
-    }
-
-    public IEnumerable<string> GetMessageIds()
-    {
-        using var conn = new SQLiteConnection("./db.db");
-        var htmlBankMessages = conn.QueryAll<HtmlBankMessage>();
-        return htmlBankMessages.Select(msg => msg.Id);
-    }
-
-    public HtmlBankMessage GetHtmlBankMessage(string id)
-    {
-        using var conn = new SQLiteConnection("./db.db");
-        var htmlBankMessages = conn.Query<HtmlBankMessage>(msg => msg.Id.Equals(id));
-        return htmlBankMessages.FirstOrDefault();
-    }
-
-    public void Save(HtmlBankMessage message)
-    {
-        using var conn = new SQLiteConnection("./db.db");
-        conn.Insert(message);
-    }
-}
-
-public class HtmlBankMessage
-{
-    public string Id { get; set; }
-    public string HtmlBody { get; set; }
 }

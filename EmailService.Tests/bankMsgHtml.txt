@@ -1,0 +1,187 @@
+<html lang="it">
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta content="width=device-width" name="viewport">
+<title></title>
+<style>   
+	table{   
+		border-collapse: collapse;   
+		border-spacing: 0;   
+		margin: 0;   
+		padding: 0;   
+		border: 0;   
+		font-size: 100%;   
+		font: inherit;    
+		font-weight: normal;   
+	}   
+	th {   
+		margin: 0;   
+		padding: 0;   
+		font-size: 100%;   
+		font: inherit;   
+		font-weight: normal;   
+	}   
+	html {height: 100%;}   
+	body {height: 100%; width: 100%; margin: 0; font-size: 12px; font-family: Arial, sans-serif; background: #e6e6ec; color: #666; line-height: 20px;}   
+
+	.contenutoMail {width: 600px; margin: auto; background-color: #ffffff;}   
+
+	.sottotitoloParagrafo, .titoloParagrafo {
+		color: #669900;
+		font-weight: bold;
+		text-transform: uppercase;
+		margin-block-start: 0px;
+		margin-block-end: 0px;
+		margin-bottom: 0.2em;
+	}
+
+	.titoloParagrafo {
+		text-transform: uppercase;
+	}
+
+	.tabellaDisposizione{width:600px;}   
+	.tabellaDisposizione th, .tabellaDisposizione td {   
+		text-align: left;   
+		padding: 3px 0px 3px 5px;   
+	}   
+	.tabellaDisposizione th {   
+		text-transform: uppercase;   
+		background-color: #DCE7B5;   
+		color: #669900;   
+		width: 250px;   
+		border-bottom: 1px solid #CEE08F;   
+	}   
+	.tabellaDisposizione tr:first-child th{border-top: 1px solid #DCE7B5;}   
+	.tabellaDisposizione tr:last-child th{border-bottom: 1px solid #DCE7B5;}   
+	.tabellaDisposizione td {   
+		border-top: 1px solid #669900;   
+		border-bottom: 1px solid #669900;   
+	}   
+
+	.tabellaPassaDaNoi{width:600px;}   
+	.tabellaPassaDaNoi th {   
+		text-align: center;   
+		padding: 6px 0px 6px 0px;   
+		color: #669900;   
+		font-weight: bold;   
+		text-transform: uppercase;   
+	}   
+	.tabellaPassaDaNoi th.header1 {   
+		background-color: #DCE7B5;   
+		border-right: 2px solid #ffffff;   
+	}   
+	.tabellaPassaDaNoi th.header2 {   
+		background-color: #B2D9D1;   
+	}   
+	.tabellaPassaDaNoi td {   
+		text-align: left;   
+		padding: 3px 0px 3px 5px;   
+		border-bottom: 2px solid #B4BF80;   
+	}   
+
+	.disclaimer {   
+		font-size: 11px;   
+		line-height: 12px;   
+		font-style: italic;   
+	}  
+
+    hr.disclaimer {  
+		color: #669900;  
+		border-color: #669900;  
+		background-color: #669900;  
+		border-style: solid;  
+        }  
+    hr.disclaimerEnd {  
+		color: #000;  
+		border-color: #000;  
+		background-color: #000;  
+		height: 8px;  
+    }  
+
+	.legalLineBanner{  
+		padding-left: 1.5em;  
+		padding-right: 1.5em;  
+		text-align: justify;  
+		font-size: 7pt;  
+		line-height: 1em;  
+	}  
+
+	img[class="fluid-image"] { width: 100% !important; height: auto !important;}   
+
+</style>
+<style>   
+	@-ms-viewport {    
+		width: device-width;    
+	}   
+	@media screen and (min-width: 601px) {   
+		.contenutoMail,#piedeMail,.tabellaDisposizione{ width: 600px !important;}   
+	}   
+	@media screen and (max-width: 600px) {   
+		#testaMail,.contenutoMail,#piedeMail,.tabellaDisposizione {width: 100% !important;}   
+
+	}   
+</style>
+</head>
+<body>
+<table style="table-layout:fixed;" width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td align="center">
+<table width="600" id="testaMail" style="width: 600px">
+<tr>
+<td style="height: 35px;">&nbsp;</td>
+</tr>
+</table>
+<table style="width: 600px; margin: auto; background-color: #ffffff;" width="600" class="contenutoMail" id="contenutoMail">
+<tbody style="width: 600px;">
+<tr id="header">
+<td align="left" style="padding: 5px 10px 10px 10px;"><img width="100%" class="fluid-image" alt="Webank" style="display: block;" src="https://www.webank.it/WB/fe/img/header_webank.gif"></td>
+</tr>
+<tr id="body">
+<td style="padding: 10px 24px 10px 24px;">
+								
+								Gentile  Ivan Ardillo                                                                                                                                                                                                                                                    ,<br>
+ti informiamo che e' stato effettuato un pagamento
+		 con la carta di debito n. *7407.
+	  
+Ti riepiloghiamo di seguito i principali dati dell'operazione:<br>
+<br>
+<table class="tabellaDisposizione">
+<tr>
+<th>Importo</th><td><b>8,00&nbsp; euro</b></td>
+</tr>
+<tr>
+<th>Presso</th><td><b>LE VERONIQUE(,BARI       BA)                                                                        </b></td>
+</tr>
+<tr>
+<th>Data</th><td><b>16/08/2022</b></td>
+</tr>
+<tr>
+<th>Ora</th><td><b>14:39</b></td>
+</tr>
+</table>
+<br>
+Un saluto cordiale
+<br>Webank</td>
+</tr>
+<tr id="banner">
+<td align="left" style="padding: 10px 10px 10px 10px;"></td>
+</tr>
+<tr id="footer">
+<td align="left" style="padding: 10px 10px 5px 10px;"><img width="100%" class="fluid-image" alt="assistenza" style="display: block;" src="https://www.webank.it/WB/fe/img/footer_webank.gif"></td>
+</tr>
+<tr id="disclaimer">
+<td style="padding: 10px 10px 5px 10px;"></td>
+</tr>
+</tbody>
+</table>
+<table style="width: 100%;" id="piedeMail">
+<tr>
+<td style="height: 35px;">&nbsp;</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>
