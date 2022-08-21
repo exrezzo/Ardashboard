@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ardashboard", "Ardashboard\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailService.Tests", "EmailService.Tests\EmailService.Tests.csproj", "{A2D2F31E-E1A7-4C8A-8F6C-C46ADF2582F2}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.fsproj", "{BC1877B2-8CF1-400A-B910-9D2082E7AE8C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{A2D2F31E-E1A7-4C8A-8F6C-C46ADF2582F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2D2F31E-E1A7-4C8A-8F6C-C46ADF2582F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2D2F31E-E1A7-4C8A-8F6C-C46ADF2582F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC1877B2-8CF1-400A-B910-9D2082E7AE8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC1877B2-8CF1-400A-B910-9D2082E7AE8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC1877B2-8CF1-400A-B910-9D2082E7AE8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC1877B2-8CF1-400A-B910-9D2082E7AE8C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
