@@ -27,8 +27,4 @@
       </None>
     </ItemGroup>
 
-    <ItemGroup>
-      <Content Include="db.db" />
-    </ItemGroup>
-
 </Project>

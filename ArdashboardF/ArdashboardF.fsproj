@@ -7,9 +7,16 @@
 
     <ItemGroup>
         <Compile Include="Program.fs" />
+        <Compile Include="EmailServiceF.fs" />
         <Content Include="db.db">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Donald" Version="7.1.0" />
+      <PackageReference Include="Google.Apis.Gmail.v1" Version="1.57.0.2650" />
+      <PackageReference Include="Stub.System.Data.SQLite.Core.NetStandard" Version="1.0.115.5" />
     </ItemGroup>
 
     <ItemGroup>
