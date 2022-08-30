@@ -2,11 +2,15 @@
 // printfn "Hello from F#"
 
 
-open ArdashboardF.EmailServiceF
-open EmailServiceModule
+
+open F.Core
+open EmailService.EmailServiceModule
 
 [<EntryPoint>]
 let main argv =
+    
     getBankMessages |> Seq.toList |> ignore
     printf "Wow fatto."
     0
+    
+    

@@ -1,4 +1,8 @@
-﻿module ArdashboardF.EmailServiceF
+﻿module F.Core.EmailService
+
+open System.Data.SQLite
+open Ardashboard.Infrastructure
+open RepoDb
 
 
 type HtmlBankMsg = { Id: string; HtmlBody: string }
@@ -64,10 +68,8 @@ module GmailServiceModule =
 
 module HtmlBankMessageRepository =
     open System.Data
-    open System.Data.SQLite
     open Donald
-    open Ardashboard.EmailService
-    open Ardashboard.Stores
+
     // todo: the same query for retrieving messages, simplify.
     let ofDataReader (rd: IDataReader) : HtmlBankMsg =
         { Id = rd.ReadString "Id"
@@ -101,15 +103,21 @@ module HtmlBankMessageRepository =
 
 
     let saveHtmlMessages (msgs: seq<HtmlBankMsg>) =
-        let bankMessageStore = BankMessageStore()
+        if not SQLiteBootstrap.IsInitialized then
+            SQLiteBootstrap.Initialize()
+
+        use sqLiteConnection =
+            new SQLiteConnection("Data Source=db.db")
 
         msgs
-        |> Seq.map (fun msg -> bankMessageStore.Save(HtmlBankMessage(Id = msg.Id, HtmlBody = msg.HtmlBody)))
-
+        |> Seq.iter (fun msg ->
+            sqLiteConnection.Insert<HtmlBankMessageStored>(HtmlBankMessageStored(Id = msg.Id, HtmlBody = msg.HtmlBody))
+            |> ignore)
 
 module EmailServiceModule =
     open System
     open System.Text
+
     let private decodeHtmlBankMessages (htmlMessages: seq<HtmlBankMsg>) =
         htmlMessages
         |> Seq.map (fun bankMsg -> bankMsg.HtmlBody)
@@ -146,7 +154,7 @@ module EmailServiceModule =
 
         let saveHtmlMessagesToStore =
             HtmlBankMessageRepository.saveHtmlMessages htmlBankMessagesFromApi
-            |> Seq.toList
+            |> ignore
 
         htmlBankMessagesFromApi
         |> Seq.append (htmlBankMessagesFromStore)

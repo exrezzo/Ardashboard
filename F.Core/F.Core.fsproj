@@ -1,27 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Program.fs" />
-        <Content Include="db.db">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
+        <Compile Include="EmailServiceF.fs" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Donald" Version="7.1.0" />
       <PackageReference Include="Google.Apis.Gmail.v1" Version="1.57.0.2650" />
+      <PackageReference Include="RepoDb.SQLite.System" Version="1.0.1" />
       <PackageReference Include="Stub.System.Data.SQLite.Core.NetStandard" Version="1.0.115.5" />
     </ItemGroup>
 
     <ItemGroup>
-<!--      <ProjectReference Include="..\Ardashboard\Ardashboard.csproj" />-->
       <ProjectReference Include="..\Ardashboard.Infrastructure\Ardashboard.Infrastructure.csproj" />
-      <ProjectReference Include="..\F.Core\F.Core.fsproj" />
     </ItemGroup>
 
 </Project>

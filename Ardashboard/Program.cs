@@ -20,9 +20,6 @@ class Program
 {
     public static void Main(string[] args)
     {
-        return;
-        
-        
         Application.Init();
         RxApp.MainThreadScheduler = TerminalScheduler.Default;
         RxApp.TaskpoolScheduler = TaskPoolScheduler.Default;
@@ -34,13 +31,16 @@ class MainViewModel : ReactiveObject
 {
     [Reactive] public ustring SomeText { get; set; } = ustring.Empty;
 
+    public List<F.Core.EmailService.HtmlBankMsg> msgs;
+
     public MainViewModel()
     {
-        var emailService = new EmailService.EmailService(new BankMessageStore());
-        var msgs = emailService.GetHtmlBankMessages().Result;
+        // var emailService = new EmailService.EmailService(new BankMessageStore());
+        // var msgs = emailService.GetHtmlBankMessages().Result;
+        var m = F.Core.EmailService.EmailServiceModule.getBankMessages;
         // var doc = new HtmlAgilityPack.HtmlDocument();
         // doc.LoadHtml();
-
+        msgs = m.ToList();
         // List labels. 
         // IList<Google.Apis.Gmail.v1.Data.Label> labels = request.Execute().Labels;
     }
@@ -61,8 +61,14 @@ class MainView : Window, IViewFor<MainViewModel>
     public MainView(MainViewModel viewModel)
     {
         ViewModel = viewModel;
-        var someText = _someText(this);
-        _dependingText(someText);
+        Add(new ListView(ViewModel.msgs.Select(msg => msg.Id).ToList())
+        {
+            X = Pos.Left(this),
+            Y = Pos.Top(this) + 1,
+            Width = 40
+        });
+        // var someText = _someText(this);
+        // _dependingText(someText);
     }
 
     private TextField _someText(View previous)

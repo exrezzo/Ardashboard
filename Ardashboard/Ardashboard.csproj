@@ -22,9 +22,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="db">
+      <ProjectReference Include="..\F.Core\F.Core.fsproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="db.db">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+      </Content>
     </ItemGroup>
 
 </Project>
