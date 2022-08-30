@@ -1,170 +1,152 @@
 ﻿module ArdashboardF.EmailServiceF
 
-open System
-open System.Data
-open System.Data.SQLite
-open System.Text
-open System.Threading
-open Ardashboard.EmailService
-open Ardashboard.Stores
-open Google.Apis.Auth.OAuth2
-open Google.Apis.Gmail.v1
-open Google.Apis.Gmail.v1.Data
-open Google.Apis.Services
-open Google.Apis.Util.Store
-open Donald
 
-type HtmlBankMsgType = { Id: string; HtmlBody: string }
+type HtmlBankMsg = { Id: string; HtmlBody: string }
 
-module HtmlBankMsg =
-    let ofDataReader (rd: IDataReader) : HtmlBankMsgType =
+module GmailServiceModule =
+    open System.Threading
+    open Google.Apis.Auth.OAuth2
+    open Google.Apis.Gmail.v1
+    open Google.Apis.Gmail.v1.Data
+    open Google.Apis.Services
+    open Google.Apis.Util.Store
+
+    let private gmailUserCredentials (clientId: string) (clientSecret: string) =
+        GoogleWebAuthorizationBroker.AuthorizeAsync(
+            ClientSecrets(ClientId = clientId, ClientSecret = clientSecret),
+            [| GmailService.Scope.GmailReadonly |],
+            "user",
+            CancellationToken.None,
+            FileDataStore("token.json", true)
+        )
+        |> Async.AwaitTask
+
+    let private ardashBoardUserCredential =
+        gmailUserCredentials
+            "1054055296797-649vhgjueq528r64fh4b9nhvsscst1ks.apps.googleusercontent.com"
+            "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"
+
+    let private getGmailService =
+        new GmailService(
+            BaseClientService.Initializer(
+                HttpClientInitializer =
+                    (ardashBoardUserCredential
+                     |> Async.RunSynchronously),
+                ApplicationName = "Ardashboard"
+            )
+        )
+
+    let getMessageIds =
+        let gms =
+            getGmailService.Users.Messages.List("me")
+
+        gms.Q <- "from:webank@webank.it subject:autorizzato pagamento"
+
+        gms.Execute().Messages
+        |> List.ofSeq
+        |> Seq.map (fun htmlMessage -> htmlMessage.Id)
+
+    let getHtmlBankMessages (messageIds: seq<string>) =
+        Seq.map
+            (fun messageId ->
+                getGmailService
+                    .Users
+                    .Messages
+                    .Get("me", messageId)
+                    .Execute())
+            messageIds
+        |> Seq.map (fun msg -> msg.Payload.Parts |> List.ofSeq |> Seq.ofList)
+        |> Seq.map (fun (parts: seq<MessagePart>) ->
+            Seq.map (fun (part: MessagePart) -> part.Body.Data) parts
+            |> String.concat " ")
+        |> Seq.zip messageIds
+        |> Seq.map (fun (id: string, html: string) -> { Id = id; HtmlBody = html })
+
+module HtmlBankMessageRepository =
+    open System.Data
+    open System.Data.SQLite
+    open Donald
+    open Ardashboard.EmailService
+    open Ardashboard.Stores
+    // todo: the same query for retrieving messages, simplify.
+    let ofDataReader (rd: IDataReader) : HtmlBankMsg =
         { Id = rd.ReadString "Id"
           HtmlBody = rd.ReadString "HtmlBody" }
 
-let gmailUserCredentials (clientId: string) (clientSecret: string) =
-    GoogleWebAuthorizationBroker.AuthorizeAsync(
-        ClientSecrets(ClientId = clientId, ClientSecret = clientSecret),
-        [| GmailService.Scope.GmailReadonly |],
-        "user",
-        CancellationToken.None,
-        FileDataStore("token.json", true)
-    )
-    |> Async.AwaitTask
+    let messageIds =
+        let sql = "select * from HtmlBankMessage"
 
-let ardashBoardUserCredential =
-    gmailUserCredentials
-        "1054055296797-649vhgjueq528r64fh4b9nhvsscst1ks.apps.googleusercontent.com"
-        "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"
+        use conn =
+            new SQLiteConnection "Data Source=db.db"
 
-let getGmailService =
-    new GmailService(
-        BaseClientService.Initializer(
-            HttpClientInitializer =
-                (ardashBoardUserCredential
-                 |> Async.RunSynchronously),
-            ApplicationName = "Ardashboard"
-        )
-    )
+        let res =
+            conn |> Db.newCommand sql |> Db.query ofDataReader
 
+        match res with
+        | Ok result' -> result' |> Seq.map (fun msg -> msg.Id)
+        | _ -> List.Empty
 
-let messageIds =
-    let gms =
-        getGmailService.Users.Messages.List("me")
+    let getHtmlBankMessages =
+        let sql = "select * from HtmlBankMessage"
 
-    gms.Q <- "from:webank@webank.it subject:autorizzato pagamento"
+        use conn =
+            new SQLiteConnection "Data Source=db.db"
 
-    gms.Execute().Messages
-    |> List.ofSeq
-    |> Seq.map (fun htmlMessage -> htmlMessage.Id)
+        let res =
+            conn |> Db.newCommand sql |> Db.query ofDataReader
 
-// todo: the same query for retrieving messages, simplify.
-let messageIdsOfStored =
-    let sql = "select * from HtmlBankMessage"
-
-    use conn =
-        new SQLiteConnection "Data Source=db.db"
-
-    let res =
-        conn
-        |> Db.newCommand sql
-        |> Db.query HtmlBankMsg.ofDataReader
-
-    match res with
-    | Ok result' -> result' |> Seq.map (fun msg -> msg.Id)
-    | _ -> List.Empty
-
-let getHtmlBankMessagesFromApi (gmailService: GmailService) (messageIds: seq<string>) =
-    Seq.map
-        (fun messageId ->
-            gmailService
-                .Users
-                .Messages
-                .Get("me", messageId)
-                .Execute())
-        messageIds
-    |> Seq.map (fun msg -> msg.Payload.Parts |> List.ofSeq |> Seq.ofList)
-    |> Seq.map (fun (parts: seq<MessagePart>) ->
-        Seq.map (fun (part: MessagePart) -> part.Body.Data) parts
-        |> String.concat " ")
-    |> Seq.zip messageIds
-    |> Seq.map (fun (id: string, html: string) -> { Id = id; HtmlBody = html })
-let getHtmlBankMessagesFromStore =
-    let sql = "select * from HtmlBankMessage"
-
-    use conn =
-        new SQLiteConnection "Data Source=db.db"
-
-    let res =
-        conn
-        |> Db.newCommand sql
-        |> Db.query HtmlBankMsg.ofDataReader
-
-    match res with
-    | Ok result' -> result' |> Seq.ofList // |> Seq.map (fun msg -> msg.Id)
-    | _ -> Seq.empty
-
-let saveHtmlMessagesToStore (msgs: seq<HtmlBankMsgType>) =
-    let bankMessageStore = BankMessageStore()
-    // let sql =
-    //     "insert into HtmlBankMessage (Id, HtmlBody)"
-    msgs
-    |> Seq.map (fun msg -> bankMessageStore.Save(HtmlBankMessage(Id = msg.Id, HtmlBody = msg.HtmlBody)))
-// use conn =
-//     new SQLiteConnection "Data Source=db.db"
-//
-// msgs
-// |> Seq.map (fun msg ->
-//     let param =
-//         [ "Id", SqlType.String (Seq.head msgs).Id
-//           "HtmlBody", SqlType.String (Seq.head msgs).HtmlBody ]
-//
-//     dbCommand conn {
-//         cmdText sql
-//         cmdParam param
-//     }
-//     |> Db.exec)
-// |> Seq.toList
+        match res with
+        | Ok result' -> result' |> Seq.ofList
+        | _ -> Seq.empty
 
 
+    let saveHtmlMessages (msgs: seq<HtmlBankMsg>) =
+        let bankMessageStore = BankMessageStore()
 
-let decodeHtmlBankMessages (htmlMessages: seq<HtmlBankMsgType>) =
-    htmlMessages
-    |> Seq.map (fun bankMsg -> bankMsg.HtmlBody)
-    |> Seq.map (fun (base64stringMsg: string) ->
-        base64stringMsg
-            .Replace("-", "+")
-            .Replace("_", "/")
-        |> Convert.FromBase64String
-        |> Encoding.UTF8.GetString)
-    |> Seq.zip (htmlMessages |> Seq.map (fun msg -> msg.Id))
-    |> Seq.map (fun (id, htmlDecoded) -> { Id = id; HtmlBody = htmlDecoded })
+        msgs
+        |> Seq.map (fun msg -> bankMessageStore.Save(HtmlBankMessage(Id = msg.Id, HtmlBody = msg.HtmlBody)))
 
-let bankMessages =
-    let idsToGetFromApi =
-        messageIds |> Seq.except messageIdsOfStored
 
-    let htmlBankMessagesFromStore =
-        getHtmlBankMessagesFromStore
+module EmailServiceModule =
+    open System
+    open System.Text
+    let private decodeHtmlBankMessages (htmlMessages: seq<HtmlBankMsg>) =
+        htmlMessages
+        |> Seq.map (fun bankMsg -> bankMsg.HtmlBody)
+        |> Seq.map (fun (base64stringMsg: string) ->
+            base64stringMsg
+                .Replace("-", "+")
+                .Replace("_", "/")
+            |> Convert.FromBase64String
+            |> Encoding.UTF8.GetString)
+        |> Seq.zip (htmlMessages |> Seq.map (fun msg -> msg.Id))
+        |> Seq.map (fun (id, htmlDecoded) -> { Id = id; HtmlBody = htmlDecoded })
 
-    htmlBankMessagesFromStore |> Seq.toList |> List.length |> printfn "msgs from store: %i"  
-    
-    let htmlBankMessagesFromApi =
-        getHtmlBankMessagesFromApi getGmailService idsToGetFromApi
-        |> decodeHtmlBankMessages
+    let getBankMessages =
+        let idsToGetFromApi =
+            GmailServiceModule.getMessageIds
+            |> Seq.except HtmlBankMessageRepository.messageIds
 
-    htmlBankMessagesFromApi |> Seq.toList |> List.length |> printfn "msgs from api: %i"  
+        let htmlBankMessagesFromStore =
+            HtmlBankMessageRepository.getHtmlBankMessages
 
-    let saveHtmlMessagesToStore =
-        saveHtmlMessagesToStore htmlBankMessagesFromApi
+        htmlBankMessagesFromStore
         |> Seq.toList
+        |> List.length
+        |> printfn "msgs from store: %i"
 
-    htmlBankMessagesFromApi
-    |> Seq.append (htmlBankMessagesFromStore)
+        let htmlBankMessagesFromApi =
+            GmailServiceModule.getHtmlBankMessages idsToGetFromApi
+            |> decodeHtmlBankMessages
 
+        htmlBankMessagesFromApi
+        |> Seq.toList
+        |> List.length
+        |> printfn "msgs from api: %i"
 
-[<EntryPoint>]
-let main argv =
-    // List.iter (fun msg -> printfn "Ciao %s" msg.Id) (bankMessages |> Seq.toList)
-    bankMessages |> Seq.toList |> ignore
-    printf "Wow fatto."
-    0
+        let saveHtmlMessagesToStore =
+            HtmlBankMessageRepository.saveHtmlMessages htmlBankMessagesFromApi
+            |> Seq.toList
+
+        htmlBankMessagesFromApi
+        |> Seq.append (htmlBankMessagesFromStore)

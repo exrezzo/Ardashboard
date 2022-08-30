@@ -6,8 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Program.fs" />
         <Compile Include="EmailServiceF.fs" />
+        <Compile Include="Program.fs" />
         <Content Include="db.db">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
