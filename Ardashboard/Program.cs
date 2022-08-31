@@ -1,13 +1,8 @@
-﻿using System.Reactive.Concurrency;
+﻿using System.ComponentModel;
+using System.Data;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text;
-using Ardashboard.EmailService;
-using Ardashboard.Stores;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Gmail.v1;
-using Google.Apis.Services;
-using Google.Apis.Util.Store;
 using NStack;
 using ReactiveMarbles.ObservableEvents;
 using ReactiveUI;
@@ -31,22 +26,17 @@ class MainViewModel : ReactiveObject
 {
     [Reactive] public ustring SomeText { get; set; } = ustring.Empty;
 
-    public List<F.Core.EmailService.HtmlBankMsg> msgs;
+    public List<F.Core.EmailService.BankTransaction.BankTransaction> msgs;
 
     public MainViewModel()
     {
         // var emailService = new EmailService.EmailService(new BankMessageStore());
         // var msgs = emailService.GetHtmlBankMessages().Result;
-        var m = F.Core.EmailService.EmailServiceModule.getBankMessages;
-        // var doc = new HtmlAgilityPack.HtmlDocument();
-        // doc.LoadHtml();
-        msgs = m.ToList();
-        // List labels. 
-        // IList<Google.Apis.Gmail.v1.Data.Label> labels = request.Execute().Labels;
+        msgs = F.Core.EmailService.EmailServiceModule.getBankMessages.ToList();
     }
 }
 
-class MainView : Window, IViewFor<MainViewModel>
+class MainView : Toplevel, IViewFor<MainViewModel>
 {
     readonly CompositeDisposable _disposable = new();
 
@@ -61,58 +51,66 @@ class MainView : Window, IViewFor<MainViewModel>
     public MainView(MainViewModel viewModel)
     {
         ViewModel = viewModel;
-        Add(new ListView(ViewModel.msgs.Select(msg => msg.Id).ToList())
+        var menuBar = new MenuBar(new MenuBarItem[]
         {
-            X = Pos.Left(this),
-            Y = Pos.Top(this) + 1,
-            Width = 40
+            new MenuBarItem("Menu1", new MenuItem[] { new MenuItem("Item1", "Help", null) })
         });
-        // var someText = _someText(this);
-        // _dependingText(someText);
-    }
-
-    private TextField _someText(View previous)
-    {
-        var someText = new TextField(ViewModel.SomeText)
+        Add(menuBar);
+        var bankTransactionsWindow = new Window("Last bank transactions")
         {
-            X = Pos.Left(previous),
-            Y = Pos.Top(previous) + 1,
-            Width = 40
+            X = 0,
+            Y = Pos.Bottom(menuBar),
+            // Width = Dim.Percent(50, true),
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
         };
-
-        ViewModel
-            .WhenAnyValue(x => x.SomeText)
-            .BindTo(someText, field => field.Text)
-            .DisposeWith(_disposable);
-        someText
-            .Events()
-            .TextChanged
-            .Select(old => someText.Text)
-            .DistinctUntilChanged()
-            .BindTo(ViewModel, x => x.SomeText)
-            .DisposeWith(_disposable);
-        Add(someText);
-        return someText;
-    }
-
-    void _dependingText(View otherView)
-    {
-        var dependingLabel = new Label("ETIIII")
+        var bankTransactionsDataTable = ViewModel.msgs.ToDataTable();
+        var columnStyles = new Dictionary<DataColumn, TableView.ColumnStyle>
         {
-            X = Pos.X(otherView),
-            Y = Pos.Bottom(otherView) + 5,
-            Width = 40
+            [bankTransactionsDataTable.Columns["Amount"] ?? new()] = new TableView.ColumnStyle() { Alignment = TextAlignment.Centered, MinAcceptableWidth = 30}
         };
-        ViewModel
-            .WhenAnyValue(x => x.SomeText)
-            .Subscribe(s => dependingLabel.Text = s.IsEmpty ? "Kitemmurt" : s)
-            .DisposeWith(_disposable);
-        Add(dependingLabel);
+        var transactionsListView =
+            new TableView(bankTransactionsDataTable)
+            {
+                X = Pos.X(bankTransactionsWindow),
+                Y = Pos.Y(bankTransactionsWindow),
+                Width = Dim.Fill(),
+                Height = Dim.Fill(),
+                Style = new TableView.TableStyle()
+                {
+                    ColumnStyles = columnStyles
+                }
+            };
+
+        bankTransactionsWindow.Add(transactionsListView);
+        Add(bankTransactionsWindow);
     }
+
 
     protected override void Dispose(bool disposing)
     {
         _disposable.Dispose();
         base.Dispose(disposing);
+    }
+}
+
+internal static class DataTableExtensions
+{
+    public static DataTable ToDataTable<T>(this IList<T> data)
+    {
+        PropertyDescriptorCollection properties =
+            TypeDescriptor.GetProperties(typeof(T));
+        DataTable table = new DataTable();
+        foreach (PropertyDescriptor prop in properties)
+            table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+        foreach (T item in data)
+        {
+            DataRow row = table.NewRow();
+            foreach (PropertyDescriptor prop in properties)
+                row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+            table.Rows.Add(row);
+        }
+
+        return table;
     }
 }
