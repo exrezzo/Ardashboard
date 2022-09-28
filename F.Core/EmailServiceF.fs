@@ -67,6 +67,7 @@ module GmailServiceModule =
     open Google.Apis.Gmail.v1.Data
     open Google.Apis.Services
     open Google.Apis.Util.Store
+    open Newtonsoft.Json.Linq
 
     let private gmailUserCredentials (clientId: string) (clientSecret: string) =
         GoogleWebAuthorizationBroker.AuthorizeAsync(
@@ -78,10 +79,16 @@ module GmailServiceModule =
         )
         |> Async.AwaitTask
 
+    let credentialsFromSecretsFile =
+        let jsonObj = File.ReadAllText "secrets.json" |> JObject.Parse
+        let clientId = jsonObj.SelectToken "GmailUserCredentials.ClientId" |> string
+        let clientSecret = jsonObj.SelectToken "GmailUserCredentials.ClientSecret" |> string
+        (clientId, clientSecret)    // maybe it's an overkill to create an ad-hoc type
     let private ardashBoardUserCredential =
+        let (clientId, clientSecret) = credentialsFromSecretsFile
         gmailUserCredentials
-            "1054055296797-649vhgjueq528r64fh4b9nhvsscst1ks.apps.googleusercontent.com"
-            "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"
+            clientId
+            clientSecret
 
     let private getGmailService =
         new GmailService(

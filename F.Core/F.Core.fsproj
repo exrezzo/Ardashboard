@@ -21,4 +21,10 @@
       <ProjectReference Include="..\Ardashboard.Infrastructure\Ardashboard.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="secrets.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>
