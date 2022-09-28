@@ -212,3 +212,4 @@ module EmailServiceModule =
         htmlBankMessagesFromApi
         |> Seq.append (htmlBankMessagesFromStore)
         |> Seq.map BankTransaction.fromHtmlBankMsg
+        |> Seq.sortByDescending (fun bt -> bt.Occurred)
