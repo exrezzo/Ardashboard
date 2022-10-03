@@ -12,7 +12,7 @@ let ``My test`` () =
     
     
 [<Fact>]
-let ``Write Html Bank Message to DB`` () =
+let ``Write and read Html Bank Message to DB`` () =
     let msgId = "0"
     let htmlBody = "An HTML body"
     use conn =
