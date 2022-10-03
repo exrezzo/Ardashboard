@@ -4,8 +4,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ardashboard", "Ardashboard\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailService.Tests", "EmailService.Tests\EmailService.Tests.csproj", "{A2D2F31E-E1A7-4C8A-8F6C-C46ADF2582F2}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ArdashboardF", "ArdashboardF\ArdashboardF.fsproj", "{F896B40A-29DE-4580-B4BE-A54156156C45}"
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "F.Core", "F.Core\F.Core.fsproj", "{B5773F2C-6DA9-4D3D-8BC6-B282534CB77F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ardashboard.Infrastructure", "Ardashboard.Infrastructure\Ardashboard.Infrastructure.csproj", "{2F2DFC00-1A1A-44E2-8FEB-412C27AEFF04}"
@@ -24,10 +22,6 @@ Global
 		{A2D2F31E-E1A7-4C8A-8F6C-C46ADF2582F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2D2F31E-E1A7-4C8A-8F6C-C46ADF2582F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2D2F31E-E1A7-4C8A-8F6C-C46ADF2582F2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F896B40A-29DE-4580-B4BE-A54156156C45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F896B40A-29DE-4580-B4BE-A54156156C45}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F896B40A-29DE-4580-B4BE-A54156156C45}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F896B40A-29DE-4580-B4BE-A54156156C45}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B5773F2C-6DA9-4D3D-8BC6-B282534CB77F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B5773F2C-6DA9-4D3D-8BC6-B282534CB77F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5773F2C-6DA9-4D3D-8BC6-B282534CB77F}.Release|Any CPU.ActiveCfg = Release|Any CPU
