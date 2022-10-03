@@ -5,7 +5,6 @@ open System.Data.SQLite
 open System.IO
 open System.Text.RegularExpressions
 open System.Web
-open Ardashboard.Infrastructure
 open FSharp.Data
 open RepoDb
 
@@ -163,16 +162,23 @@ module HtmlBankMessageRepository =
 
 
     let saveHtmlMessages (msgs: seq<HtmlBankMsg>) =
-        if not SQLiteBootstrap.IsInitialized then
-            SQLiteBootstrap.Initialize()
-
-        use sqLiteConnection =
-            new SQLiteConnection("Data Source=db.db")
-
-        msgs
-        |> Seq.iter (fun msg ->
-            sqLiteConnection.Insert<HtmlBankMessageStored>(HtmlBankMessageStored(Id = msg.Id, HtmlBody = msg.HtmlBody))
-            |> ignore)
+        let query = "INSERT INTO HtmlBankMessage(Id, HtmlBody) values (@Id, @HtmlBody)"
+        let ppp = msgs |> Seq.collect (fun (x: HtmlBankMsg) ->
+            [["Id", SqlType.String x.Id
+              "HtmlBody", SqlType.String x.HtmlBody]])
+                  |> Seq.toList
+        use conn =
+            new SQLiteConnection "Data Source=db.db"
+        conn.Open()
+        let insertResult =
+            conn
+            |> Db.newCommand query
+            |> Db.execMany ppp
+        match insertResult with
+        | Ok resultValue -> ignore
+        | Error errorValue -> failwith (errorValue |> string) 
+        
+        
 
 module EmailServiceModule =
     open System
