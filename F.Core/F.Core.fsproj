@@ -6,7 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Domain.fs" />
+        <Compile Include="BankTransactionModule.fs" />
         <Compile Include="EmailServiceF.fs" />
+
+        <Compile Include="HtmlBankMessageStore.fs" />
+        <Compile Include="GmailService.fs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -18,7 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="secrets.json">
+        <Content Include="secrets.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

@@ -8,6 +8,7 @@ using ReactiveMarbles.ObservableEvents;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Terminal.Gui;
+using F.Core;
 
 namespace Ardashboard;
 
@@ -26,13 +27,14 @@ class MainViewModel : ReactiveObject
 {
     [Reactive] public ustring SomeText { get; set; } = ustring.Empty;
 
-    public List<F.Core.EmailService.BankTransaction.BankTransaction> msgs;
+    public List<F.Core.Domain.BankTransaction> msgs;
 
     public MainViewModel()
     {
-        // var emailService = new EmailService.EmailService(new BankMessageStore());
-        // var msgs = emailService.GetHtmlBankMessages().Result;
-        msgs = F.Core.EmailService.EmailServiceModule.getBankMessages.ToList();
+        msgs = F.Core.EmailService.getBankMessages(
+            GmailService.GmailServiceImpl,
+            HtmlBankMessageStore.HtmlBankMessageLocalSqliteStore
+        ).ToList();
     }
 }
 
