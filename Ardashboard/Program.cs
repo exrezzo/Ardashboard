@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.Data.SQLite;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -9,6 +10,7 @@ using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using Terminal.Gui;
 using F.Core;
+using Microsoft.FSharp.Core;
 
 namespace Ardashboard;
 
@@ -33,7 +35,8 @@ class MainViewModel : ReactiveObject
     {
         msgs = F.Core.EmailService.getBankMessages(
             GmailService.GmailServiceImpl,
-            HtmlBankMessageStore.HtmlBankMessageLocalSqliteStore
+            HtmlBankMessageStore.HtmlBankMessageLocalSqliteStore(
+                FSharpFunc<Unit, SQLiteConnection>.FromConverter(_ => new SQLiteConnection("Data Source=db.db")))
         ).ToList();
     }
 }

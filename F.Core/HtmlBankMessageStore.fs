@@ -11,54 +11,49 @@ let ofDataReader (rd: IDataReader) : HtmlBankMsg =
     { Id = rd.ReadString "Id"
       HtmlBody = rd.ReadString "HtmlBody" }
 
-let messageIds =
+let messageIds (dbConnectionFactory:unit -> SQLiteConnection) =
     let sql = "select * from HtmlBankMessage"
-
-    use conn =
-        new SQLiteConnection "Data Source=db.db"
-
+    use dbConnection = dbConnectionFactory()
     let res =
-        conn |> Db.newCommand sql |> Db.query ofDataReader
+        dbConnection |> Db.newCommand sql |> Db.query ofDataReader
 
     match res with
     | Ok result' -> result' |> Seq.map (fun msg -> msg.Id)
     | _ -> List.Empty
 
-let getHtmlBankMessages =
+let getHtmlBankMessages (dbConnectionFactory:unit -> SQLiteConnection) =
     let sql = "select * from HtmlBankMessage"
-
-    use conn =
-        new SQLiteConnection "Data Source=db.db"
+    use dbConnection = dbConnectionFactory()
 
     let res =
-        conn |> Db.newCommand sql |> Db.query ofDataReader
+        dbConnection |> Db.newCommand sql |> Db.query ofDataReader
 
     match res with
     | Ok result' -> result' |> Seq.ofList
     | _ -> Seq.empty
 
 
-let saveHtmlMessages (msgs: seq<HtmlBankMsg>) =
+let saveHtmlMessages (dbConnectionFactory:unit -> SQLiteConnection) (msgs: seq<HtmlBankMsg>) =
     let query = "INSERT INTO HtmlBankMessage(Id, HtmlBody) values (@Id, @HtmlBody)"
     let ppp = msgs |> Seq.collect (fun (x: HtmlBankMsg) ->
         [["Id", SqlType.String x.Id
           "HtmlBody", SqlType.String x.HtmlBody]])
               |> Seq.toList
-    use conn =
-        new SQLiteConnection "Data Source=db.db"
-    conn.Open()
+    use dbConnection = dbConnectionFactory()
+
+    dbConnection.Open()
     let insertResult =
-        conn
+        dbConnection
         |> Db.newCommand query
         |> Db.execMany ppp
     match insertResult with
     | Ok resultValue -> ignore
     | Error errorValue -> failwith (errorValue |> string)
     
-let HtmlBankMessageLocalSqliteStore = {
+let HtmlBankMessageLocalSqliteStore (dbConnectionFactory:unit -> SQLiteConnection) = {
     new IHtmlBankMessageCache with
-        member this.GetMessageIds() = messageIds
-        member this.GetHtmlBankMessages() = getHtmlBankMessages
-        member this.SaveHtmlBankMessages (msgs:seq<HtmlBankMsg>) = saveHtmlMessages msgs |> ignore
+        member this.GetMessageIds() = messageIds dbConnectionFactory
+        member this.GetHtmlBankMessages() = getHtmlBankMessages dbConnectionFactory
+        member this.SaveHtmlBankMessages (msgs:seq<HtmlBankMsg>) = saveHtmlMessages dbConnectionFactory msgs |> ignore
 }
     
