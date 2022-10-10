@@ -38,6 +38,12 @@ let ``Write and read Html Bank Message to DB`` () =
     | _ -> Seq.empty |> failwith "Html bank message not inserted correctly into db"
     
 [<Fact>]
+let ``Update cache if newer messages from remote store``() =
+    // todo: mock the 2 repos
+    let a = EmailService.getBankMessages
+    ignore
+    
+[<Fact>]
 let ``Decode encoded Html message in base64 format`` () =
     let encodedText = "PGgxPlRpdG9sbzwvaDE+DQo8cD5DaWFvPC9wPg=="
     
