@@ -28,7 +28,8 @@ let decodeHtmlBankMessages (htmlMessages: seq<HtmlBankMsg>) =
 
 let getBankMessages
     (bankMsgStore:IHtmlBankMessageStore)
-    (bankMsgCache:IHtmlBankMessageCache) =
+    (bankMsgCache:IHtmlBankMessageCache)
+    (htmlToBankTransactionMapper: HtmlBankMsg -> BankTransaction)=
     
     let idsToGetFromApi =
         bankMsgStore.GetMessageIds()
@@ -57,5 +58,5 @@ let getBankMessages
 
     htmlBankMessagesFromApi
     |> Seq.append (htmlBankMessagesFromCache)
-    |> Seq.map BankTransactionModule.fromHtmlBankMsg
+    |> Seq.map htmlToBankTransactionMapper  // BankTransactionModule.fromHtmlBankMsg
     |> Seq.sortByDescending (fun bt -> bt.Occurred)

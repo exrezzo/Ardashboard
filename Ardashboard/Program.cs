@@ -36,7 +36,8 @@ class MainViewModel : ReactiveObject
         msgs = F.Core.EmailService.getBankMessages(
             GmailService.GmailServiceImpl,
             HtmlBankMessageStore.HtmlBankMessageLocalSqliteStore(
-                FSharpFunc<Unit, SQLiteConnection>.FromConverter(_ => new SQLiteConnection("Data Source=db.db")))
+                FSharpFunc<Unit, SQLiteConnection>.FromConverter(_ => new SQLiteConnection("Data Source=db.db"))),
+            (FSharpFunc<Domain.HtmlBankMsg, Domain.BankTransaction>)BankTransactionModule.fromHtmlBankMsg
         ).ToList();
     }
 }
